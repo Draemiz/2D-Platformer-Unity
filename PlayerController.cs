@@ -3,9 +3,9 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D rd;
-
     public float speed = 5f;
     public float jumpforce = 7f;
+    private Animator animator;
 
     private bool isGrounded;
 
@@ -13,29 +13,42 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rd = GetComponent<Rigidbody2D>();
+
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
+{
+    float move = Input.GetAxis("Horizontal");
+
+    float speedAnimation = Mathf.Abs(move);
+
+    animator.SetFloat("Speed", speedAnimation);
+
+    rd.velocity = new Vector2(move * speed, rd.velocity.y);
+
+    // Salto
+    if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
     {
-        float move = Input.GetAxis("Horizontal");
+        rd.AddForce(Vector2.up * jumpforce, ForceMode2D.Impulse);
 
-        rd.velocity = new Vector2(move * speed, rd.velocity.y);
-
-        // Salto
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            rd.AddForce(Vector2.up * jumpforce, ForceMode2D.Impulse);
-
-            isGrounded = false;
-
-        }
+        isGrounded = false;
     }
+}
     void OnCollisionEnter2D(Collision2D collision){
 
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = false;
         }
 
     }
