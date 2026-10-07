@@ -6,15 +6,16 @@ public class PlayerController : MonoBehaviour
     public float speed = 5f;
     public float jumpforce = 7f;
     private Animator animator;
-
     private bool isGrounded;
+    private bool facinRight = true;
+    private SpriteRenderer spriteRenderer;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rd = GetComponent<Rigidbody2D>();
-
         animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
@@ -28,12 +29,19 @@ public class PlayerController : MonoBehaviour
 
     rd.velocity = new Vector2(move * speed, rd.velocity.y);
 
+    if (move > 0 && !facinRight){
+        Flip();
+    }else if (move < 0 && facinRight){
+        Flip();
+    }
+
     // Salto
     if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
     {
         rd.AddForce(Vector2.up * jumpforce, ForceMode2D.Impulse);
 
         isGrounded = false;
+        animator.SetBool("isJump", true);
     }
 }
     void OnCollisionEnter2D(Collision2D collision){
@@ -41,6 +49,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
+            animator.SetBool("isJump", false);
         }
     }
 
@@ -50,6 +59,11 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = false;
         }
+    }
 
+    void Flip()
+    {
+        facinRight = !facinRight;
+        spriteRenderer.flipX = !spriteRenderer.flipX;
     }
 }
